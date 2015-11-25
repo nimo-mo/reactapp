@@ -2,6 +2,8 @@
 
 ##开发环境
 ###安装依赖(在开始之前请安装node.js、gulp、bower)
+`cd reactapp`
+
 `npm install`
 
 `bower install`
