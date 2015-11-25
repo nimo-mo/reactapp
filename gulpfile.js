@@ -110,5 +110,7 @@ gulp.watch(watchFiles, ['webpack','compile-styl','compile-less','compile-scss'],
   // console.log(event.path + '^_^')
 });
 
+
+gulp.task('dev',['webpack','compile-styl','compile-less','compile-scss']);
 gulp.task('default',['webpack','compile-styl','compile-less','compile-scss']);
 gulp.task('build', ['webpack','dest-js','dest-css','dest-html','dest-images','compress-js']);

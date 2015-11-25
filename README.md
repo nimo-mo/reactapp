@@ -10,7 +10,14 @@
 `npm start`
 
 ##开启实时编译
-`gulp`
+`gulp dev`
 
 ##发布
 `gulp build`
+
+##相关资料
+gulp [gulp](http://gulpjs.com/)
+bower [bower](http://bower.io/)
+react [react](http://facebook.github.io/react/)
+nodejs [nodejs](https://nodejs.org/en/)
+webpack [webpack](https://webpack.github.io/)
