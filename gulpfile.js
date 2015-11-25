@@ -93,6 +93,12 @@ gulp.task('compress-css', function() {
     .pipe(gulp.dest('./src/css'));
 });
 
+gulp.task('dest-fonts', function(){
+  return gulp.src([
+    'bower_components/font-awesome/fonts/*',
+  ]).pipe(gulp.dest('./build/fonts'));
+});
+
 gulp.task('webpack', function(callback) {
   // run webpack
   webpack(webpackConfig, function(err, stats) {
@@ -111,6 +117,6 @@ gulp.watch(watchFiles, ['webpack','compile-styl','compile-less','compile-scss'],
 });
 
 
-gulp.task('dev',['webpack','compile-styl','compile-less','compile-scss']);
+gulp.task('compile',['webpack','compile-styl','compile-less','compile-scss']);
 gulp.task('default',['webpack','compile-styl','compile-less','compile-scss']);
-gulp.task('build', ['webpack','dest-js','dest-css','dest-html','dest-images','compress-js']);
+gulp.task('build', ['webpack','dest-js','dest-css','dest-html','dest-images','dest-fonts','compress-js']);
