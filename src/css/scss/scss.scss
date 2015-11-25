@@ -1,0 +1,12 @@
+.error {
+  border: 1px #f00;
+  background-color: #fdd;
+}
+.seriousError {
+  @extend .error;
+  border-width: 3px;
+}
+.otherError {
+	@extend .error;
+  border-width: 5px;
+}
