@@ -1,7 +1,7 @@
 # reactapp with gulp & webpack
 
 ##开发环境
-###在开始之前请安装node.js、gulp、bower
+###安装依赖(在开始之前请安装node.js、gulp、bower)
 `npm install`
 
 `bower install`
