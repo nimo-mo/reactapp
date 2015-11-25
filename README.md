@@ -17,7 +17,11 @@
 
 ##相关资料
 gulp [gulp](http://gulpjs.com/)
+
 bower [bower](http://bower.io/)
+
 react [react](http://facebook.github.io/react/)
+
 nodejs [nodejs](https://nodejs.org/en/)
+
 webpack [webpack](https://webpack.github.io/)
