@@ -10,7 +10,7 @@
 `npm start`
 
 ##开启实时编译
-`gulp dev` (open a new terminal window or tab)
+`gulp compile` (open a new terminal window or tab)
 
 [http://localhost:1080/](http://localhost:1080/)
 
