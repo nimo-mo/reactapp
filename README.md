@@ -2,7 +2,7 @@
 
 ##开发环境
 ###安装依赖(在开始之前请安装node.js、gulp、bower)
-`cd reactapp`
+`cd path/to/reactapp`
 
 `npm install`
 
@@ -12,7 +12,9 @@
 `npm start`
 
 ##开启实时编译
-`gulp compile` (open a new terminal window or tab)
+`cd path/to/reactapp` (open a new terminal window or tab)
+
+`gulp compile`
 
 [http://localhost:1080/](http://localhost:1080/)
 
