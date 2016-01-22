@@ -14,10 +14,9 @@ var history = createHashHistory({
 
 var Index = require('./jsx/index');
 
-
 ReactDOM.render((
   <Router history={history}>
-    // <Redirect from="/" to="/index" />
-    <Route path="/" components={Index}></Route>
+    <Redirect from="/" to="/index" />
+    <Route path="/index" components={Index}></Route>
   </Router>
 ), document.getElementById('app'));

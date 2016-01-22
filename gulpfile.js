@@ -6,7 +6,6 @@ var md5 = require('gulp-md5-plus');
 var uglify = require('gulp-uglify');
 var minifyCss = require('gulp-minify-css');
 var htmlreplace = require('gulp-html-replace');
-
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config.js');
 
