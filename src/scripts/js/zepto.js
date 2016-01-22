@@ -1,4 +1,6 @@
-/* Zepto v1.1.4-86-g0616279 - zepto event ajax form ie touch - zeptojs.com/license */
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
 
 var Zepto = (function() {
   var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,
@@ -898,278 +900,13 @@ var Zepto = (function() {
   return $
 })()
 
+// If `$` is not yet defined, point it to `Zepto`
 window.Zepto = Zepto
 window.$ === undefined && (window.$ = Zepto)
 
-;(function($){
-  var _zid = 1, undefined,
-      slice = Array.prototype.slice,
-      isFunction = $.isFunction,
-      isString = function(obj){ return typeof obj == 'string' },
-      handlers = {},
-      specialEvents={},
-      focusinSupported = 'onfocusin' in window,
-      focus = { focus: 'focusin', blur: 'focusout' },
-      hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' }
-
-  specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
-
-  function zid(element) {
-    return element._zid || (element._zid = _zid++)
-  }
-  function findHandlers(element, event, fn, selector) {
-    event = parse(event)
-    if (event.ns) var matcher = matcherFor(event.ns)
-    return (handlers[zid(element)] || []).filter(function(handler) {
-      return handler
-        && (!event.e  || handler.e == event.e)
-        && (!event.ns || matcher.test(handler.ns))
-        && (!fn       || zid(handler.fn) === zid(fn))
-        && (!selector || handler.sel == selector)
-    })
-  }
-  function parse(event) {
-    var parts = ('' + event).split('.')
-    return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
-  }
-  function matcherFor(ns) {
-    return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
-  }
-
-  function eventCapture(handler, captureSetting) {
-    return handler.del &&
-      (!focusinSupported && (handler.e in focus)) ||
-      !!captureSetting
-  }
-
-  function realEvent(type) {
-    return hover[type] || (focusinSupported && focus[type]) || type
-  }
-
-  function add(element, events, fn, data, selector, delegator, capture){
-    var id = zid(element), set = (handlers[id] || (handlers[id] = []))
-    events.split(/\s/).forEach(function(event){
-      if (event == 'ready') return $(document).ready(fn)
-      var handler   = parse(event)
-      handler.fn    = fn
-      handler.sel   = selector
-      // emulate mouseenter, mouseleave
-      if (handler.e in hover) fn = function(e){
-        var related = e.relatedTarget
-        if (!related || (related !== this && !$.contains(this, related)))
-          return handler.fn.apply(this, arguments)
-      }
-      handler.del   = delegator
-      var callback  = delegator || fn
-      handler.proxy = function(e){
-        e = compatible(e)
-        if (e.isImmediatePropagationStopped()) return
-        e.data = data
-        var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
-        if (result === false) e.preventDefault(), e.stopPropagation()
-        return result
-      }
-      handler.i = set.length
-      set.push(handler)
-      if ('addEventListener' in element)
-        element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
-    })
-  }
-  function remove(element, events, fn, selector, capture){
-    var id = zid(element)
-    ;(events || '').split(/\s/).forEach(function(event){
-      findHandlers(element, event, fn, selector).forEach(function(handler){
-        delete handlers[id][handler.i]
-      if ('removeEventListener' in element)
-        element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
-      })
-    })
-  }
-
-  $.event = { add: add, remove: remove }
-
-  $.proxy = function(fn, context) {
-    var args = (2 in arguments) && slice.call(arguments, 2)
-    if (isFunction(fn)) {
-      var proxyFn = function(){ return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
-      proxyFn._zid = zid(fn)
-      return proxyFn
-    } else if (isString(context)) {
-      if (args) {
-        args.unshift(fn[context], fn)
-        return $.proxy.apply(null, args)
-      } else {
-        return $.proxy(fn[context], fn)
-      }
-    } else {
-      throw new TypeError("expected function")
-    }
-  }
-
-  $.fn.bind = function(event, data, callback){
-    return this.on(event, data, callback)
-  }
-  $.fn.unbind = function(event, callback){
-    return this.off(event, callback)
-  }
-  $.fn.one = function(event, selector, data, callback){
-    return this.on(event, selector, data, callback, 1)
-  }
-
-  var returnTrue = function(){return true},
-      returnFalse = function(){return false},
-      ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$)/,
-      eventMethods = {
-        preventDefault: 'isDefaultPrevented',
-        stopImmediatePropagation: 'isImmediatePropagationStopped',
-        stopPropagation: 'isPropagationStopped'
-      }
-
-  function compatible(event, source) {
-    if (source || !event.isDefaultPrevented) {
-      source || (source = event)
-
-      $.each(eventMethods, function(name, predicate) {
-        var sourceMethod = source[name]
-        event[name] = function(){
-          this[predicate] = returnTrue
-          return sourceMethod && sourceMethod.apply(source, arguments)
-        }
-        event[predicate] = returnFalse
-      })
-
-      if (source.defaultPrevented !== undefined ? source.defaultPrevented :
-          'returnValue' in source ? source.returnValue === false :
-          source.getPreventDefault && source.getPreventDefault())
-        event.isDefaultPrevented = returnTrue
-    }
-    return event
-  }
-
-  function createProxy(event) {
-    var key, proxy = { originalEvent: event }
-    for (key in event)
-      if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
-
-    return compatible(proxy, event)
-  }
-
-  $.fn.delegate = function(selector, event, callback){
-    return this.on(event, selector, callback)
-  }
-  $.fn.undelegate = function(selector, event, callback){
-    return this.off(event, selector, callback)
-  }
-
-  $.fn.live = function(event, callback){
-    $(document.body).delegate(this.selector, event, callback)
-    return this
-  }
-  $.fn.die = function(event, callback){
-    $(document.body).undelegate(this.selector, event, callback)
-    return this
-  }
-
-  $.fn.on = function(event, selector, data, callback, one){
-    var autoRemove, delegator, $this = this
-    if (event && !isString(event)) {
-      $.each(event, function(type, fn){
-        $this.on(type, selector, data, fn, one)
-      })
-      return $this
-    }
-
-    if (!isString(selector) && !isFunction(callback) && callback !== false)
-      callback = data, data = selector, selector = undefined
-    if (callback === undefined || data === false)
-      callback = data, data = undefined
-
-    if (callback === false) callback = returnFalse
-
-    return $this.each(function(_, element){
-      if (one) autoRemove = function(e){
-        remove(element, e.type, callback)
-        return callback.apply(this, arguments)
-      }
-
-      if (selector) delegator = function(e){
-        var evt, match = $(e.target).closest(selector, element).get(0)
-        if (match && match !== element) {
-          evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
-          return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
-        }
-      }
-
-      add(element, event, callback, data, selector, delegator || autoRemove)
-    })
-  }
-  $.fn.off = function(event, selector, callback){
-    var $this = this
-    if (event && !isString(event)) {
-      $.each(event, function(type, fn){
-        $this.off(type, selector, fn)
-      })
-      return $this
-    }
-
-    if (!isString(selector) && !isFunction(callback) && callback !== false)
-      callback = selector, selector = undefined
-
-    if (callback === false) callback = returnFalse
-
-    return $this.each(function(){
-      remove(this, event, callback, selector)
-    })
-  }
-
-  $.fn.trigger = function(event, args){
-    event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
-    event._args = args
-    return this.each(function(){
-      // handle focus(), blur() by calling them directly
-      if (event.type in focus && typeof this[event.type] == "function") this[event.type]()
-      // items in the collection might not be DOM elements
-      else if ('dispatchEvent' in this) this.dispatchEvent(event)
-      else $(this).triggerHandler(event, args)
-    })
-  }
-
-  // triggers event handlers on current element just as if an event occurred,
-  // doesn't trigger an actual event, doesn't bubble
-  $.fn.triggerHandler = function(event, args){
-    var e, result
-    this.each(function(i, element){
-      e = createProxy(isString(event) ? $.Event(event) : event)
-      e._args = args
-      e.target = element
-      $.each(findHandlers(element, event.type || event), function(i, handler){
-        result = handler.proxy(e)
-        if (e.isImmediatePropagationStopped()) return false
-      })
-    })
-    return result
-  }
-
-  // shortcut methods for `.bind(event, fn)` for each event type
-  ;('focusin focusout focus blur load resize scroll unload click dblclick '+
-  'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave '+
-  'change select keydown keypress keyup error').split(' ').forEach(function(event) {
-    $.fn[event] = function(callback) {
-      return (0 in arguments) ?
-        this.bind(event, callback) :
-        this.trigger(event)
-    }
-  })
-
-  $.Event = function(type, props) {
-    if (!isString(type)) props = type, type = props.type
-    var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
-    if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
-    event.initEvent(type, bubbles, true)
-    return compatible(event)
-  }
-
-})(Zepto)
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
 
 ;(function($){
   var jsonpID = 0,
@@ -1533,6 +1270,526 @@ window.$ === undefined && (window.$ = Zepto)
   }
 })(Zepto)
 
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function($){
+  // Create a collection of callbacks to be fired in a sequence, with configurable behaviour
+  // Option flags:
+  //   - once: Callbacks fired at most one time.
+  //   - memory: Remember the most recent context and arguments
+  //   - stopOnFalse: Cease iterating over callback list
+  //   - unique: Permit adding at most one instance of the same callback
+  $.Callbacks = function(options) {
+    options = $.extend({}, options)
+
+    var memory, // Last fire value (for non-forgettable lists)
+        fired,  // Flag to know if list was already fired
+        firing, // Flag to know if list is currently firing
+        firingStart, // First callback to fire (used internally by add and fireWith)
+        firingLength, // End of the loop when firing
+        firingIndex, // Index of currently firing callback (modified by remove if needed)
+        list = [], // Actual callback list
+        stack = !options.once && [], // Stack of fire calls for repeatable lists
+        fire = function(data) {
+          memory = options.memory && data
+          fired = true
+          firingIndex = firingStart || 0
+          firingStart = 0
+          firingLength = list.length
+          firing = true
+          for ( ; list && firingIndex < firingLength ; ++firingIndex ) {
+            if (list[firingIndex].apply(data[0], data[1]) === false && options.stopOnFalse) {
+              memory = false
+              break
+            }
+          }
+          firing = false
+          if (list) {
+            if (stack) stack.length && fire(stack.shift())
+            else if (memory) list.length = 0
+            else Callbacks.disable()
+          }
+        },
+
+        Callbacks = {
+          add: function() {
+            if (list) {
+              var start = list.length,
+                  add = function(args) {
+                    $.each(args, function(_, arg){
+                      if (typeof arg === "function") {
+                        if (!options.unique || !Callbacks.has(arg)) list.push(arg)
+                      }
+                      else if (arg && arg.length && typeof arg !== 'string') add(arg)
+                    })
+                  }
+              add(arguments)
+              if (firing) firingLength = list.length
+              else if (memory) {
+                firingStart = start
+                fire(memory)
+              }
+            }
+            return this
+          },
+          remove: function() {
+            if (list) {
+              $.each(arguments, function(_, arg){
+                var index
+                while ((index = $.inArray(arg, list, index)) > -1) {
+                  list.splice(index, 1)
+                  // Handle firing indexes
+                  if (firing) {
+                    if (index <= firingLength) --firingLength
+                    if (index <= firingIndex) --firingIndex
+                  }
+                }
+              })
+            }
+            return this
+          },
+          has: function(fn) {
+            return !!(list && (fn ? $.inArray(fn, list) > -1 : list.length))
+          },
+          empty: function() {
+            firingLength = list.length = 0
+            return this
+          },
+          disable: function() {
+            list = stack = memory = undefined
+            return this
+          },
+          disabled: function() {
+            return !list
+          },
+          lock: function() {
+            stack = undefined;
+            if (!memory) Callbacks.disable()
+            return this
+          },
+          locked: function() {
+            return !stack
+          },
+          fireWith: function(context, args) {
+            if (list && (!fired || stack)) {
+              args = args || []
+              args = [context, args.slice ? args.slice() : args]
+              if (firing) stack.push(args)
+              else fire(args)
+            }
+            return this
+          },
+          fire: function() {
+            return Callbacks.fireWith(this, arguments)
+          },
+          fired: function() {
+            return !!fired
+          }
+        }
+
+    return Callbacks
+  }
+})(Zepto)
+
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+//
+//     Some code (c) 2005, 2013 jQuery Foundation, Inc. and other contributors
+
+;(function($){
+  var slice = Array.prototype.slice
+
+  function Deferred(func) {
+    var tuples = [
+          // action, add listener, listener list, final state
+          [ "resolve", "done", $.Callbacks({once:1, memory:1}), "resolved" ],
+          [ "reject", "fail", $.Callbacks({once:1, memory:1}), "rejected" ],
+          [ "notify", "progress", $.Callbacks({memory:1}) ]
+        ],
+        state = "pending",
+        promise = {
+          state: function() {
+            return state
+          },
+          always: function() {
+            deferred.done(arguments).fail(arguments)
+            return this
+          },
+          then: function(/* fnDone [, fnFailed [, fnProgress]] */) {
+            var fns = arguments
+            return Deferred(function(defer){
+              $.each(tuples, function(i, tuple){
+                var fn = $.isFunction(fns[i]) && fns[i]
+                deferred[tuple[1]](function(){
+                  var returned = fn && fn.apply(this, arguments)
+                  if (returned && $.isFunction(returned.promise)) {
+                    returned.promise()
+                      .done(defer.resolve)
+                      .fail(defer.reject)
+                      .progress(defer.notify)
+                  } else {
+                    var context = this === promise ? defer.promise() : this,
+                        values = fn ? [returned] : arguments
+                    defer[tuple[0] + "With"](context, values)
+                  }
+                })
+              })
+              fns = null
+            }).promise()
+          },
+
+          promise: function(obj) {
+            return obj != null ? $.extend( obj, promise ) : promise
+          }
+        },
+        deferred = {}
+
+    $.each(tuples, function(i, tuple){
+      var list = tuple[2],
+          stateString = tuple[3]
+
+      promise[tuple[1]] = list.add
+
+      if (stateString) {
+        list.add(function(){
+          state = stateString
+        }, tuples[i^1][2].disable, tuples[2][2].lock)
+      }
+
+      deferred[tuple[0]] = function(){
+        deferred[tuple[0] + "With"](this === deferred ? promise : this, arguments)
+        return this
+      }
+      deferred[tuple[0] + "With"] = list.fireWith
+    })
+
+    promise.promise(deferred)
+    if (func) func.call(deferred, deferred)
+    return deferred
+  }
+
+  $.when = function(sub) {
+    var resolveValues = slice.call(arguments),
+        len = resolveValues.length,
+        i = 0,
+        remain = len !== 1 || (sub && $.isFunction(sub.promise)) ? len : 0,
+        deferred = remain === 1 ? sub : Deferred(),
+        progressValues, progressContexts, resolveContexts,
+        updateFn = function(i, ctx, val){
+          return function(value){
+            ctx[i] = this
+            val[i] = arguments.length > 1 ? slice.call(arguments) : value
+            if (val === progressValues) {
+              deferred.notifyWith(ctx, val)
+            } else if (!(--remain)) {
+              deferred.resolveWith(ctx, val)
+            }
+          }
+        }
+
+    if (len > 1) {
+      progressValues = new Array(len)
+      progressContexts = new Array(len)
+      resolveContexts = new Array(len)
+      for ( ; i < len; ++i ) {
+        if (resolveValues[i] && $.isFunction(resolveValues[i].promise)) {
+          resolveValues[i].promise()
+            .done(updateFn(i, resolveContexts, resolveValues))
+            .fail(deferred.reject)
+            .progress(updateFn(i, progressContexts, progressValues))
+        } else {
+          --remain
+        }
+      }
+    }
+    if (!remain) deferred.resolveWith(resolveContexts, resolveValues)
+    return deferred.promise()
+  }
+
+  $.Deferred = Deferred
+})(Zepto)
+
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
+;(function($){
+  var _zid = 1, undefined,
+      slice = Array.prototype.slice,
+      isFunction = $.isFunction,
+      isString = function(obj){ return typeof obj == 'string' },
+      handlers = {},
+      specialEvents={},
+      focusinSupported = 'onfocusin' in window,
+      focus = { focus: 'focusin', blur: 'focusout' },
+      hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' }
+
+  specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
+
+  function zid(element) {
+    return element._zid || (element._zid = _zid++)
+  }
+  function findHandlers(element, event, fn, selector) {
+    event = parse(event)
+    if (event.ns) var matcher = matcherFor(event.ns)
+    return (handlers[zid(element)] || []).filter(function(handler) {
+      return handler
+        && (!event.e  || handler.e == event.e)
+        && (!event.ns || matcher.test(handler.ns))
+        && (!fn       || zid(handler.fn) === zid(fn))
+        && (!selector || handler.sel == selector)
+    })
+  }
+  function parse(event) {
+    var parts = ('' + event).split('.')
+    return {e: parts[0], ns: parts.slice(1).sort().join(' ')}
+  }
+  function matcherFor(ns) {
+    return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
+  }
+
+  function eventCapture(handler, captureSetting) {
+    return handler.del &&
+      (!focusinSupported && (handler.e in focus)) ||
+      !!captureSetting
+  }
+
+  function realEvent(type) {
+    return hover[type] || (focusinSupported && focus[type]) || type
+  }
+
+  function add(element, events, fn, data, selector, delegator, capture){
+    var id = zid(element), set = (handlers[id] || (handlers[id] = []))
+    events.split(/\s/).forEach(function(event){
+      if (event == 'ready') return $(document).ready(fn)
+      var handler   = parse(event)
+      handler.fn    = fn
+      handler.sel   = selector
+      // emulate mouseenter, mouseleave
+      if (handler.e in hover) fn = function(e){
+        var related = e.relatedTarget
+        if (!related || (related !== this && !$.contains(this, related)))
+          return handler.fn.apply(this, arguments)
+      }
+      handler.del   = delegator
+      var callback  = delegator || fn
+      handler.proxy = function(e){
+        e = compatible(e)
+        if (e.isImmediatePropagationStopped()) return
+        e.data = data
+        var result = callback.apply(element, e._args == undefined ? [e] : [e].concat(e._args))
+        if (result === false) e.preventDefault(), e.stopPropagation()
+        return result
+      }
+      handler.i = set.length
+      set.push(handler)
+      if ('addEventListener' in element)
+        element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+    })
+  }
+  function remove(element, events, fn, selector, capture){
+    var id = zid(element)
+    ;(events || '').split(/\s/).forEach(function(event){
+      findHandlers(element, event, fn, selector).forEach(function(handler){
+        delete handlers[id][handler.i]
+      if ('removeEventListener' in element)
+        element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
+      })
+    })
+  }
+
+  $.event = { add: add, remove: remove }
+
+  $.proxy = function(fn, context) {
+    var args = (2 in arguments) && slice.call(arguments, 2)
+    if (isFunction(fn)) {
+      var proxyFn = function(){ return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
+      proxyFn._zid = zid(fn)
+      return proxyFn
+    } else if (isString(context)) {
+      if (args) {
+        args.unshift(fn[context], fn)
+        return $.proxy.apply(null, args)
+      } else {
+        return $.proxy(fn[context], fn)
+      }
+    } else {
+      throw new TypeError("expected function")
+    }
+  }
+
+  $.fn.bind = function(event, data, callback){
+    return this.on(event, data, callback)
+  }
+  $.fn.unbind = function(event, callback){
+    return this.off(event, callback)
+  }
+  $.fn.one = function(event, selector, data, callback){
+    return this.on(event, selector, data, callback, 1)
+  }
+
+  var returnTrue = function(){return true},
+      returnFalse = function(){return false},
+      ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$)/,
+      eventMethods = {
+        preventDefault: 'isDefaultPrevented',
+        stopImmediatePropagation: 'isImmediatePropagationStopped',
+        stopPropagation: 'isPropagationStopped'
+      }
+
+  function compatible(event, source) {
+    if (source || !event.isDefaultPrevented) {
+      source || (source = event)
+
+      $.each(eventMethods, function(name, predicate) {
+        var sourceMethod = source[name]
+        event[name] = function(){
+          this[predicate] = returnTrue
+          return sourceMethod && sourceMethod.apply(source, arguments)
+        }
+        event[predicate] = returnFalse
+      })
+
+      if (source.defaultPrevented !== undefined ? source.defaultPrevented :
+          'returnValue' in source ? source.returnValue === false :
+          source.getPreventDefault && source.getPreventDefault())
+        event.isDefaultPrevented = returnTrue
+    }
+    return event
+  }
+
+  function createProxy(event) {
+    var key, proxy = { originalEvent: event }
+    for (key in event)
+      if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
+
+    return compatible(proxy, event)
+  }
+
+  $.fn.delegate = function(selector, event, callback){
+    return this.on(event, selector, callback)
+  }
+  $.fn.undelegate = function(selector, event, callback){
+    return this.off(event, selector, callback)
+  }
+
+  $.fn.live = function(event, callback){
+    $(document.body).delegate(this.selector, event, callback)
+    return this
+  }
+  $.fn.die = function(event, callback){
+    $(document.body).undelegate(this.selector, event, callback)
+    return this
+  }
+
+  $.fn.on = function(event, selector, data, callback, one){
+    var autoRemove, delegator, $this = this
+    if (event && !isString(event)) {
+      $.each(event, function(type, fn){
+        $this.on(type, selector, data, fn, one)
+      })
+      return $this
+    }
+
+    if (!isString(selector) && !isFunction(callback) && callback !== false)
+      callback = data, data = selector, selector = undefined
+    if (callback === undefined || data === false)
+      callback = data, data = undefined
+
+    if (callback === false) callback = returnFalse
+
+    return $this.each(function(_, element){
+      if (one) autoRemove = function(e){
+        remove(element, e.type, callback)
+        return callback.apply(this, arguments)
+      }
+
+      if (selector) delegator = function(e){
+        var evt, match = $(e.target).closest(selector, element).get(0)
+        if (match && match !== element) {
+          evt = $.extend(createProxy(e), {currentTarget: match, liveFired: element})
+          return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)))
+        }
+      }
+
+      add(element, event, callback, data, selector, delegator || autoRemove)
+    })
+  }
+  $.fn.off = function(event, selector, callback){
+    var $this = this
+    if (event && !isString(event)) {
+      $.each(event, function(type, fn){
+        $this.off(type, selector, fn)
+      })
+      return $this
+    }
+
+    if (!isString(selector) && !isFunction(callback) && callback !== false)
+      callback = selector, selector = undefined
+
+    if (callback === false) callback = returnFalse
+
+    return $this.each(function(){
+      remove(this, event, callback, selector)
+    })
+  }
+
+  $.fn.trigger = function(event, args){
+    event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
+    event._args = args
+    return this.each(function(){
+      // handle focus(), blur() by calling them directly
+      if (event.type in focus && typeof this[event.type] == "function") this[event.type]()
+      // items in the collection might not be DOM elements
+      else if ('dispatchEvent' in this) this.dispatchEvent(event)
+      else $(this).triggerHandler(event, args)
+    })
+  }
+
+  // triggers event handlers on current element just as if an event occurred,
+  // doesn't trigger an actual event, doesn't bubble
+  $.fn.triggerHandler = function(event, args){
+    var e, result
+    this.each(function(i, element){
+      e = createProxy(isString(event) ? $.Event(event) : event)
+      e._args = args
+      e.target = element
+      $.each(findHandlers(element, event.type || event), function(i, handler){
+        result = handler.proxy(e)
+        if (e.isImmediatePropagationStopped()) return false
+      })
+    })
+    return result
+  }
+
+  // shortcut methods for `.bind(event, fn)` for each event type
+  ;('focusin focusout focus blur load resize scroll unload click dblclick '+
+  'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave '+
+  'change select keydown keypress keyup error').split(' ').forEach(function(event) {
+    $.fn[event] = function(callback) {
+      return (0 in arguments) ?
+        this.bind(event, callback) :
+        this.trigger(event)
+    }
+  })
+
+  $.Event = function(type, props) {
+    if (!isString(type)) props = type, type = props.type
+    var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
+    if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
+    event.initEvent(type, bubbles, true)
+    return compatible(event)
+  }
+
+})(Zepto)
+
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
 ;(function($){
   $.fn.serializeArray = function() {
     var name, type, result = [],
@@ -1570,6 +1827,10 @@ window.$ === undefined && (window.$ = Zepto)
 
 })(Zepto)
 
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
+
 ;(function(){
   // getComputedStyle shouldn't freak out when called
   // without a valid element as argument
@@ -1586,6 +1847,10 @@ window.$ === undefined && (window.$ = Zepto)
     }
   }
 })()
+
+//     Zepto.js
+//     (c) 2010-2015 Thomas Fuchs
+//     Zepto.js may be freely distributed under the MIT license.
 
 ;(function($){
   var touch = {},

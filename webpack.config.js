@@ -1,19 +1,21 @@
 
 module.exports = {
-  cache: true,
-  entry: './src/js/app.jsx',
+  // cache: true,
+  entry: './src/scripts/app.jsx',
   output: {
-    path: './src/js',
-    filename: 'bundle.js'
+    path: './src/scripts',
+    filename: 'app.js'
   },
   module: {
     loaders: [
-      { test: /\.css$/,  loader: 'style!css' },
-      { test: /\.jsx$/,  loader: 'jsx-loader?harmony' },
-      { test: /\.ttf$/,  loader: 'file-loader?prefix=font/' },
-      { test: /\.eot$/,  loader: 'file-loader?prefix=font/' },
-      { test: /\.svg$/,  loader: 'file-loader?prefix=font/' },
-      { test: /\.woff$/, loader: 'url-loader?prefix=font/&limit=5000&mimetype=application/font-woff' }
+      {
+        test: /\.jsx?$/,
+        exclude: /(node_modules|bower_components)/,
+        loader: 'babel', // 'babel-loader' is also a legal name to reference
+        query: {
+          presets: ['react', 'es2015']
+        }
+      }
     ]
   },
   resolve: {
