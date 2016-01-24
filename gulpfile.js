@@ -34,7 +34,7 @@ gulp.task('dest-images', function () {
     .pipe(gulp.dest('dist/images'));
 });
 
-gulp.task('dest-fonts', function(){
+gulp.task('dest-fonts', function () {
   return gulp.src([
     'src/fonts/*',
   ]).pipe(gulp.dest('dist/fonts'));
@@ -46,23 +46,20 @@ gulp.task('dest-html', function() {
 });
 
 gulp.task('compress-js', ['webpack'], function() {
-  return gulp.src('src/js/app.js')
+  return gulp.src('src/scripts/app.js')
     .pipe(uglify())
-    .pipe(gulp.dest('dist/js'));
+    .pipe(md5(5,'dist/*.html'))
+    .pipe(gulp.dest('dist/scripts'));
 });
 
-gulp.task('compress-css', function() {
+gulp.task('compress-css', ['compile-less'], function() {
   return gulp.src('src/styles/app.css')
     .pipe(cssnano())
+    .pipe(md5(5,'dist/*.html'))
     .pipe(gulp.dest('dist/styles'));
 });
 
 // ============== watch =============
-// gulp.watch(watchFiles, ['webpack','compile-less'], function(event) {
-//   gulp.watch(watchFiles, ['webpack']);
-//   console.log(event.path + '^_^')
-// });
-
 gulp.task('watch', ['compile-less','webpack'], function() {
   gulp.watch(
     [
@@ -79,5 +76,7 @@ gulp.task('watch', ['compile-less','webpack'], function() {
 gulp.task('build', [
   'dest-fonts',
   'dest-images',
-  'dest-html'
+  'dest-html',
+  'compress-css',
+  'compress-js'
 ]);
