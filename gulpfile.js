@@ -4,7 +4,7 @@ var gutil = require('gulp-util');
 var less = require('gulp-less');
 var md5 = require('gulp-md5-plus');
 var uglify = require('gulp-uglify');
-var minifyCss = require('gulp-minify-css');
+var cssnano = require('gulp-cssnano');
 var htmlreplace = require('gulp-html-replace');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config.js');
@@ -53,7 +53,7 @@ gulp.task('compress-js', ['webpack'], function() {
 
 gulp.task('compress-css', function() {
   return gulp.src('src/styles/app.css')
-    .pipe(minifyCss())
+    .pipe(cssnano())
     .pipe(gulp.dest('dist/styles'));
 });
 
