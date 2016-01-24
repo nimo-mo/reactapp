@@ -1,17 +1,17 @@
 var React = require('react');
 var Header = require('./header');
 
-var Index = React.createClass({
+var About = React.createClass({
+
 	render: function() {
-		console.log(this.props)
 		return (
-			<div className="index">
+			<div className="about">
 				<Header />
-				index page
+				about page
 			</div>
 		);
 	}
 
 });
 
-module.exports = Index;
+module.exports = About;
