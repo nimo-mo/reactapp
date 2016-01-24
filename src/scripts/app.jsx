@@ -12,6 +12,7 @@ var history = createHashHistory({
   queryKey: false
 });
 
+
 var Index = require('./jsx/index');
 
 ReactDOM.render((

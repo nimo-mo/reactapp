@@ -4,5 +4,5 @@ dist
 .tmp
 .DS_Store
 npm-debug.log
+src/styles/app.css
 src/scripts/app.js
-src/styles/app.less

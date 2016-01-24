@@ -4,7 +4,7 @@ var Index = React.createClass({
 
 	render: function() {
 		return (
-			<div className="index">123</div>
+			<div className="index">12345</div>
 		);
 	}
 

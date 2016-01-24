@@ -63,7 +63,7 @@ gulp.task('compress-css', function() {
 //   console.log(event.path + '^_^')
 // });
 
-gulp.task('watch', function() {
+gulp.task('watch', ['compile-less','webpack'], function() {
   gulp.watch(
     [
       'src/styles/**/*.less',
