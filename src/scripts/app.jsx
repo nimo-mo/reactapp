@@ -5,8 +5,10 @@ var ReactRouter = require('react-router');
 var Redirect = ReactRouter.Redirect;
 var Route = ReactRouter.Route;
 var Router = ReactRouter.Router;
-var HashHistory = ReactRouter.hashHistory;
 var BrowserHistory = ReactRouter.browserHistory;
+var $ = window.$ = require('./js/lib/zepto');
+		require('./js/lib/zepto.cookie');
+		require('react-tap-event-plugin')();
 
 var Index = require('./jsx/index');
 var About = require('./jsx/about');

@@ -1,12 +1,13 @@
 var React = require('react');
-var Header = require('./header');
+var Header = require('./components/header');
+var Menu = require('./components/menu');
 
 var Index = React.createClass({
 	render: function() {
-		console.log(this.props)
 		return (
 			<div className="index">
 				<Header />
+				<Menu />
 				index page
 			</div>
 		);

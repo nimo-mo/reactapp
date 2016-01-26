@@ -9,6 +9,8 @@ var Header = React.createClass({
 					<li className="item"><a href="/index">index</a></li>
 					<li className="item"><a href="/about">about</a></li>
 					<li className="item"><a href="/users">users</a></li>
+					<li className="item"><a href="/antdComponent">antd-component</a></li>
+					<li className="item"><a href="/noMatch">no-match</a></li>
 				</ul>
 			</div>
 		);
